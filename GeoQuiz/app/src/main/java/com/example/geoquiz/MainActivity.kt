@@ -1,17 +1,24 @@
 package com.example.geoquiz
 
+import android.nfc.Tag
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.Button
+import android.widget.ImageButton
 import android.widget.TextView
 import android.widget.Toast
+import com.google.android.material.snackbar.Snackbar
+
+private const val TAG = "MainActivity"
 
 class MainActivity : AppCompatActivity() {
 
-    private lateinit var trueButton:Button
     private lateinit var falseButton: Button
-    private lateinit var nextButton: Button
+    private lateinit var trueButton:Button
+    private lateinit var prevButton: ImageButton
+    private lateinit var nextButton: ImageButton
     private lateinit var questionTextView: TextView
 
     //List of question for quiz (A better way is database)
@@ -27,12 +34,14 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        Log.d(TAG, "onCreate(Bundle?) called")
         setContentView(R.layout.activity_main)
 
         //initialise variable (give them link to the View)
         trueButton = findViewById(R.id.true_button)
         falseButton = findViewById(R.id.false_button)
         nextButton = findViewById(R.id.next_button)
+        prevButton = findViewById(R.id.prev_button)
         questionTextView = findViewById(R.id.question_text_view)
 
         trueButton.setOnClickListener { view: View ->
@@ -43,11 +52,16 @@ class MainActivity : AppCompatActivity() {
             checkAnswer(false)
         }
 
+        prevButton.setOnClickListener {
+            updateAndMoveToPrevQuestion()
+        }
+
         nextButton.setOnClickListener {
-            /*the point is to incrementally increase the current index,
-            but when it equals the size of questionBank, then immediately equate it to 0*/
-            currentIndex = (currentIndex + 1) % questionBank.size
-            updateQuestion()
+            updateAndMoveToNextQuestion()
+        }
+
+        questionTextView.setOnClickListener {
+            updateAndMoveToNextQuestion()
         }
 
         //fill textView area with information (question) when application start
@@ -66,6 +80,24 @@ class MainActivity : AppCompatActivity() {
         questionTextView.setText(questionTextResId)
     }
 
+    private fun updateAndMoveToNextQuestion(){
+        /*the point is to incrementally increase the current index,
+            but when it equals the size of questionBank, then immediately equate it to 0*/
+        currentIndex = (currentIndex + 1) % questionBank.size
+        updateQuestion()
+    }
+
+    private fun updateAndMoveToPrevQuestion(){
+        /*if currentIndex equals 0 then make currentIndex = 5
+        * In other cases we will go through the list in backward direction*/
+        currentIndex = if(currentIndex == 0){
+            5
+        } else {
+            (currentIndex - 1) % questionBank.size
+        }
+        updateQuestion()
+    }
+
     private fun checkAnswer(userAnswer: Boolean){
         /*save in variable correct answer on the current quesion (true or false)*/
         val correctAnswer = questionBank[currentIndex].answer
@@ -80,4 +112,30 @@ class MainActivity : AppCompatActivity() {
 
         Toast.makeText(this, messageResId, Toast.LENGTH_SHORT).show()
     }
+
+    override fun onStart() {
+        super.onStart()
+        Log.d(TAG, "onStart() called")
+    }
+
+    override fun onResume() {
+        super.onResume()
+        Log.d(TAG, "onResume() called")
+    }
+
+    override fun onPause() {
+        super.onPause()
+        Log.d(TAG, "onPause() called")
+    }
+
+    override fun onStop() {
+        super.onStop()
+        Log.d(TAG, "onStop() called")
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        Log.d(TAG, "onDestroy() called")
+    }
+
 }
