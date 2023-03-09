@@ -17,9 +17,12 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var falseButton: Button
     private lateinit var trueButton:Button
+    private lateinit var restartButton: Button
     private lateinit var prevButton: ImageButton
     private lateinit var nextButton: ImageButton
     private lateinit var questionTextView: TextView
+    private lateinit var tvCountDoneAnswers: TextView
+    private lateinit var tvGeneralCountOfAnswers: TextView
 
     //List of question for quiz (A better way is database)
     private val questionBank = listOf<Question>(
@@ -30,19 +33,22 @@ class MainActivity : AppCompatActivity() {
         Question(R.string.question_americas, true),
         Question(R.string.question_asia, true)
     )
-    private var currentIndex = 0
+    private var currentIndex = 0//current index question in questionBank (list of question)
+    private var countDoneAnswers = 0 //total number of completed answers
+    private var countRightAnswers = 0//total number of right answers
+
+    private val setIndexDoneQuesiotn = mutableSetOf<Int>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Log.d(TAG, "onCreate(Bundle?) called")
         setContentView(R.layout.activity_main)
 
-        //initialise variable (give them link to the View)
-        trueButton = findViewById(R.id.true_button)
-        falseButton = findViewById(R.id.false_button)
-        nextButton = findViewById(R.id.next_button)
-        prevButton = findViewById(R.id.prev_button)
-        questionTextView = findViewById(R.id.question_text_view)
+        initialiseVariable()
+
+        //set information about count of auestions and count of done answers
+        tvCountDoneAnswers.setText("$countDoneAnswers")
+        tvGeneralCountOfAnswers.setText("${questionBank.size}")
 
         trueButton.setOnClickListener { view: View ->
             checkAnswer(true)
@@ -54,19 +60,37 @@ class MainActivity : AppCompatActivity() {
 
         prevButton.setOnClickListener {
             updateAndMoveToPrevQuestion()
+            checkDoneAnswer()
         }
 
         nextButton.setOnClickListener {
             updateAndMoveToNextQuestion()
+            checkDoneAnswer()
         }
 
         questionTextView.setOnClickListener {
             updateAndMoveToNextQuestion()
         }
 
+        restartButton.setOnClickListener {
+            clearDataAboutPassingQuestion()
+        }
+
         //fill textView area with information (question) when application start
         updateQuestion()
 
+    }
+
+    fun initialiseVariable(){
+        //initialise variable (give them link to the View)
+        trueButton = findViewById(R.id.true_button)
+        falseButton = findViewById(R.id.false_button)
+        nextButton = findViewById(R.id.next_button)
+        prevButton = findViewById(R.id.prev_button)
+        restartButton = findViewById(R.id.button_restart)
+        questionTextView = findViewById(R.id.question_text_view)
+        tvCountDoneAnswers = findViewById(R.id.tv_count_done_answers)
+        tvGeneralCountOfAnswers = findViewById(R.id.tv_general_count_of_question)
     }
 
     private fun updateQuestion(){
@@ -104,13 +128,56 @@ class MainActivity : AppCompatActivity() {
 
         /*save variable (Int) with correct or incorrect answer string resource
         * this variable is more for comfort than benefit*/
-        val messageResId = if(userAnswer == correctAnswer){
-            R.string.correct_toast
+        var messageResId = 0
+        if(userAnswer == correctAnswer){
+            messageResId = R.string.correct_toast
+            countRightAnswers++//increase score right answer of it right
         } else {
-            R.string.incorrect_toast
+            messageResId = R.string.incorrect_toast
         }
 
+        setIndexDoneQuesiotn.add(currentIndex)//add current index to set indexes done auestions
+        countDoneAnswers++//this show that one of the question
+        tvCountDoneAnswers.setText("${countDoneAnswers}")
+
+        checkDoneAnswer()
+
         Toast.makeText(this, messageResId, Toast.LENGTH_SHORT).show()
+
+        showResultMessage()
+    }
+
+    //enable or disable buttons depending on whether the user answered the question or not
+    private fun checkDoneAnswer(){
+        if(setIndexDoneQuesiotn.contains(currentIndex)) {
+            trueButton.isEnabled = false
+            falseButton.isEnabled = false
+        } else {
+            trueButton.isEnabled = true
+            falseButton.isEnabled = true
+        }
+    }
+
+    private fun clearDataAboutPassingQuestion(){
+        setIndexDoneQuesiotn.clear()
+        trueButton.isEnabled = true
+        falseButton.isEnabled = true
+        countDoneAnswers = 0
+        countRightAnswers = 0
+        tvCountDoneAnswers.setText("${countDoneAnswers}")
+    }
+
+    private fun showResultMessage(){
+        if(countDoneAnswers == questionBank.size){
+            val countWrongAnsw = questionBank.size - countRightAnswers
+            Toast.makeText(this,
+                "Correct answers: ${countRightAnswers} (${findPersent(countRightAnswers)}%)" +
+                        "\nWrong answers: ${countWrongAnsw} (${findPersent(countWrongAnsw)}%)", Toast.LENGTH_LONG).show()
+        }
+    }
+    //Find percentage of a number
+    private fun findPersent(a: Int, b: Int = questionBank.size):String{
+        return String.format("%.2f", (a.toDouble()/b.toDouble()*100.0))
     }
 
     override fun onStart() {

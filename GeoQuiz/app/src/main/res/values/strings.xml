@@ -11,6 +11,8 @@
     <string name="description_imageButton_next">Next quesiont</string>
     <string name="description_imageButton_prev">Previous quesiont</string>
 
+    <string name="count_answer_divider">/</string>
+
     <string name="true_button">True</string>
     <string name="false_button">False</string>
     <string name="next_button">Next</string>
