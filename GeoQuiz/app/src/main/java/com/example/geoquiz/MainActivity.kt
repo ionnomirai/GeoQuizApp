@@ -1,6 +1,5 @@
 package com.example.geoquiz
 
-import android.nfc.Tag
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
@@ -9,7 +8,7 @@ import android.widget.Button
 import android.widget.ImageButton
 import android.widget.TextView
 import android.widget.Toast
-import com.google.android.material.snackbar.Snackbar
+import androidx.activity.viewModels
 
 private const val TAG = "MainActivity"
 
@@ -36,8 +35,11 @@ class MainActivity : AppCompatActivity() {
     private var currentIndex = 0//current index question in questionBank (list of question)
     private var countDoneAnswers = 0 //total number of completed answers
     private var countRightAnswers = 0//total number of right answers
-
     private val setIndexDoneQuesiotn = mutableSetOf<Int>()
+
+
+    private val quizViewModel: QuizViewModel by viewModels()
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -45,6 +47,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         initialiseVariable()
+
 
         //set information about count of auestions and count of done answers
         tvCountDoneAnswers.setText("$countDoneAnswers")
