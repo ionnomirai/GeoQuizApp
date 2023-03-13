@@ -29,7 +29,7 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Log.d(TAG, "onCreate(Bundle?) called")
-        Log.d(TAG, "Got a QuizViewModel: $quizViewModel")
+       // Log.d(TAG, "Got a QuizViewModel: $quizViewModel")
         quizViewModel.teststate()
 
         setContentView(R.layout.activity_main)
