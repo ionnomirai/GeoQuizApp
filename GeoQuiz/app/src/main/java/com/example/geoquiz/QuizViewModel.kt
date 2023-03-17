@@ -57,7 +57,7 @@ class QuizViewModel(private val savedStateHandle: SavedStateHandle) : ViewModel(
 
     init {
         //we will see this message, when object will be created
-        Log.d(TAG, "ViewModel instance created")
+//        Log.d(TAG, "ViewModel instance created")
 
         /*if set from ViewModel is not equal set from savedStateHandle
             and set from savedStateHandle it is not null  -- than do it,
@@ -81,7 +81,7 @@ class QuizViewModel(private val savedStateHandle: SavedStateHandle) : ViewModel(
         /*the point is to incrementally increase the current index,
         but when it equals the size of questionBank, then immediately equate it to 0*/
         currentIndex = (currentIndex + 1) % questionBank.size
-        teststate()
+        //teststate()
     }
 
     //calculate prev index
