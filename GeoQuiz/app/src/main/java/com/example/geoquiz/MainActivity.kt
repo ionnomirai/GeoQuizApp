@@ -1,5 +1,6 @@
 package com.example.geoquiz
 
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
@@ -17,6 +18,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var falseButton: Button
     private lateinit var trueButton:Button
     private lateinit var restartButton: Button
+    private lateinit var cheatButton: Button
     private lateinit var prevButton: ImageButton
     private lateinit var nextButton: ImageButton
     private lateinit var questionTextView: TextView
@@ -24,7 +26,6 @@ class MainActivity : AppCompatActivity() {
     private lateinit var tvGeneralCountOfAnswers: TextView
 
     private val quizViewModel: QuizViewModel by viewModels()
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -64,6 +65,12 @@ class MainActivity : AppCompatActivity() {
             clearDataAboutPassingQuestion()
         }
 
+        cheatButton.setOnClickListener{
+            val answerIsTrue = quizViewModel.currentQuestionAnswer
+            val intent = CheatActivity.newIntent(this@MainActivity, answerIsTrue)
+            startActivity(intent)
+        }
+
         //fill textView area with information (question) when application start
         updateQuestion()
     }
@@ -76,6 +83,7 @@ class MainActivity : AppCompatActivity() {
         nextButton = findViewById(R.id.next_button)
         prevButton = findViewById(R.id.prev_button)
         restartButton = findViewById(R.id.button_restart)
+        cheatButton = findViewById(R.id.cheat_button)
         questionTextView = findViewById(R.id.question_text_view)
         tvCountDoneAnswers = findViewById(R.id.tv_count_done_answers)
         tvGeneralCountOfAnswers = findViewById(R.id.tv_general_count_of_question)

@@ -62,7 +62,27 @@
 
     </LinearLayout>
 
-        <ImageButton
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_gravity="bottom|center_horizontal">
+
+        <Button
+            android:id="@+id/cheat_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/cheat_button" />
+        <Button
+            android:id="@+id/button_restart"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:layout_gravity="bottom|center_horizontal"
+            android:text="Restart" />
+    </LinearLayout>
+
+    <ImageButton
             android:id="@+id/prev_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -71,15 +91,9 @@
             android:backgroundTint="@color/purple_500"
             android:contentDescription="@string/description_imageButton_prev"/>
 
-    <Button
-        android:id="@+id/button_restart"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="50dp"
-        android:layout_gravity="bottom|center_horizontal"
-        android:text="Restart" />
 
-        <ImageButton
+
+    <ImageButton
             android:id="@+id/next_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
