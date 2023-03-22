@@ -1,5 +1,6 @@
 package com.example.geoquiz
 
+import android.app.Activity
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -9,6 +10,7 @@ import android.widget.Button
 import android.widget.ImageButton
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 
 private const val TAG = "MainActivity"
@@ -16,7 +18,7 @@ private const val TAG = "MainActivity"
 class MainActivity : AppCompatActivity() {
 
     private lateinit var falseButton: Button
-    private lateinit var trueButton:Button
+    private lateinit var trueButton: Button
     private lateinit var restartButton: Button
     private lateinit var cheatButton: Button
     private lateinit var prevButton: ImageButton
@@ -27,10 +29,20 @@ class MainActivity : AppCompatActivity() {
 
     private val quizViewModel: QuizViewModel by viewModels()
 
+    private val cheatLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result -> //Handle the result
+        if (result.resultCode == Activity.RESULT_OK) {
+            quizViewModel.isCheater =
+                result.data?.getBooleanExtra(EXTRA_ANSWER_SHOWN, false) ?: false
+            quizViewModel.addCheatQuestion()
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Log.d(TAG, "onCreate(Bundle?) called")
-       // Log.d(TAG, "Got a QuizViewModel: $quizViewModel")
+        // Log.d(TAG, "Got a QuizViewModel: $quizViewModel")
         quizViewModel.teststate()
 
         setContentView(R.layout.activity_main)
@@ -65,10 +77,10 @@ class MainActivity : AppCompatActivity() {
             clearDataAboutPassingQuestion()
         }
 
-        cheatButton.setOnClickListener{
+        cheatButton.setOnClickListener {
             val answerIsTrue = quizViewModel.currentQuestionAnswer
             val intent = CheatActivity.newIntent(this@MainActivity, answerIsTrue)
-            startActivity(intent)
+            cheatLauncher.launch(intent)
         }
 
         //fill textView area with information (question) when application start
@@ -76,7 +88,7 @@ class MainActivity : AppCompatActivity() {
     }
 
 
-    fun initialiseVariable(){
+    fun initialiseVariable() {
         //initialise variable (give them link to the View)
         trueButton = findViewById(R.id.true_button)
         falseButton = findViewById(R.id.false_button)
@@ -89,7 +101,7 @@ class MainActivity : AppCompatActivity() {
         tvGeneralCountOfAnswers = findViewById(R.id.tv_general_count_of_question)
     }
 
-    private fun updateQuestion(){
+    private fun updateQuestion() {
         /*Set the current question in the TextView
         * As soon as the application is launched, it is always point on the first question
         * because currentIndex it is 0.
@@ -98,25 +110,28 @@ class MainActivity : AppCompatActivity() {
         questionTextView.setText(quizViewModel.currentQuestionText)
     }
 
-    private fun updateAndMoveToNextQuestion(){
+    private fun updateAndMoveToNextQuestion() {
         quizViewModel.moveToNext()
         updateQuestion()
     }
 
-    private fun updateAndMoveToPrevQuestion(){
+    private fun updateAndMoveToPrevQuestion() {
         quizViewModel.moveToPrev()
         updateQuestion()
     }
 
-    private fun checkAnswer(userAnswer: Boolean){
-        /*save variable (Int) with correct or incorrect answer string resource
-        * this variable is more for comfort than benefit*/
-        var messageResId = 0
+    private fun checkAnswer(userAnswer: Boolean) {
+        /*Save variable with string resource
+        if user is cheater than toast will be judgmental, it the other case it will be right or
+        wrong answer toast*/
+        val messageResId = when{
+            quizViewModel.checkCurrentQuestionCheat() -> R.string.judgment_toast
+            userAnswer == quizViewModel.currentQuestionAnswer -> R.string.correct_toast
+            else -> R.string.incorrect_toast
+        }
+
         if(userAnswer == quizViewModel.currentQuestionAnswer){
-            messageResId = R.string.correct_toast
-            quizViewModel.countRightAnswers++//increase score right answer of it right
-        } else {
-            messageResId = R.string.incorrect_toast
+            quizViewModel.countRightAnswers++
         }
 
         quizViewModel.addDoneQuestion()//add current index to set indexes done auestions
@@ -131,8 +146,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     //enable or disable buttons depending on whether the user answered the question or not
-    private fun checkDoneAnswer(){
-        if(quizViewModel.checkCurrentQuestionnDone()) {
+    private fun checkDoneAnswer() {
+        if (quizViewModel.checkCurrentQuestionnDone()) {
             trueButton.isEnabled = false
             falseButton.isEnabled = false
         } else {
@@ -141,27 +156,30 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun clearDataAboutPassingQuestion(){
+    private fun clearDataAboutPassingQuestion() {
         quizViewModel.clearUserAnswerData()
         trueButton.isEnabled = true
         falseButton.isEnabled = true
         tvCountDoneAnswers.setText("${quizViewModel.countDoneAnswers}")
     }
 
-    private fun showResultMessage(){
-        if(quizViewModel.countDoneAnswers == quizViewModel.sizeOfQuestionList){
-            Toast.makeText(this,
+    private fun showResultMessage() {
+        if (quizViewModel.countDoneAnswers == quizViewModel.sizeOfQuestionList) {
+            Toast.makeText(
+                this,
                 "Correct answers: ${quizViewModel.countRightAnswers} (${findPersent(quizViewModel.countRightAnswers)}%)" +
                         "\nWrong answers: ${quizViewModel.getCountWrongAns()} " +
-                             "(${findPersent(quizViewModel.getCountWrongAns())}%)", Toast.LENGTH_LONG).show()
+                        "(${findPersent(quizViewModel.getCountWrongAns())}%)", Toast.LENGTH_LONG
+            ).show()
         }
     }
+
     //Find percentage of a number
-    private fun findPersent(a: Int, b: Int = quizViewModel.sizeOfQuestionList):String{
-        return String.format("%.2f", (a.toDouble()/b.toDouble()*100.0))
+    private fun findPersent(a: Int, b: Int = quizViewModel.sizeOfQuestionList): String {
+        return String.format("%.2f", (a.toDouble() / b.toDouble() * 100.0))
     }
 
-    fun setPrimaryScreenInfo(){
+    fun setPrimaryScreenInfo() {
         //set information about count of auestions and count of done answers
         tvCountDoneAnswers.setText("${quizViewModel.countDoneAnswers}")
         tvGeneralCountOfAnswers.setText("${quizViewModel.sizeOfQuestionList}")

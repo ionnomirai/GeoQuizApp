@@ -10,6 +10,8 @@ const val CURRENT_INDEX_KEY = "CURRENT_INDEX_KEY"
 const val SET_OF_DONE_QUESTIONS = "SET_OF_DONE_QUESTIONS"
 const val COUNT_DONE_ANSWERS = "COUNT_DONE_ANSWERS"
 const val COUNT_RIGHT_ANSWERS = "COUNT_RIGHT_ANSWERS"
+const val IS_CHEATER_KEY = "IS_CHEATER_KEY"
+const val SET_OF_CHEAT_QUESTIONS = "SET_OF_CHEAT_QUESTIONS"
 
 class QuizViewModel(private val savedStateHandle: SavedStateHandle) : ViewModel() {
     //List of question for quiz (A better way is database)
@@ -44,6 +46,7 @@ class QuizViewModel(private val savedStateHandle: SavedStateHandle) : ViewModel(
         set(value) = savedStateHandle.set(COUNT_RIGHT_ANSWERS, value)
 
     private var setIndexDoneQuesiotn = mutableSetOf<Int>()
+    private var setIndexCheatQuestion = mutableSetOf<Int>()
 
     /*save in variable correct answer on the current quesion (true or false)*/
     val currentQuestionAnswer: Boolean
@@ -54,6 +57,10 @@ class QuizViewModel(private val savedStateHandle: SavedStateHandle) : ViewModel(
 
     val sizeOfQuestionList: Int
         get() = questionBank.size
+
+    var isCheater: Boolean
+        get() = savedStateHandle.get(IS_CHEATER_KEY) ?: false
+        set(value) = savedStateHandle.set(IS_CHEATER_KEY, value)
 
     init {
         //we will see this message, when object will be created
@@ -72,7 +79,14 @@ class QuizViewModel(private val savedStateHandle: SavedStateHandle) : ViewModel(
             savedStateHandle.get<MutableSet<Int>>(SET_OF_DONE_QUESTIONS) != null
         ) {
             setIndexDoneQuesiotn = savedStateHandle.get(SET_OF_DONE_QUESTIONS) ?: mutableSetOf()
-            Log.d(TAG, "in init")
+            Log.d(TAG, "in init done set")
+        }
+
+        if (!setIndexCheatQuestion.equals(savedStateHandle.get(SET_OF_CHEAT_QUESTIONS)) &&
+            savedStateHandle.get<MutableSet<Int>>(SET_OF_CHEAT_QUESTIONS) != null
+        ) {
+            setIndexCheatQuestion = savedStateHandle.get(SET_OF_CHEAT_QUESTIONS) ?: mutableSetOf()
+            Log.d(TAG, "in init cheat set")
         }
     }
 
@@ -106,9 +120,21 @@ class QuizViewModel(private val savedStateHandle: SavedStateHandle) : ViewModel(
         return setIndexDoneQuesiotn.contains(currentIndex)
     }
 
+    //add index question with cheat answer
+    fun addCheatQuestion(){
+        setIndexCheatQuestion.add(currentIndex)
+        savedStateHandle.set(SET_OF_CHEAT_QUESTIONS, setIndexCheatQuestion)
+    }
+
+    fun checkCurrentQuestionCheat(): Boolean{
+        return setIndexCheatQuestion.contains(currentIndex)
+    }
+
     fun clearUserAnswerData() {
         setIndexDoneQuesiotn.clear()
         savedStateHandle.set(SET_OF_DONE_QUESTIONS, setIndexDoneQuesiotn)
+        setIndexCheatQuestion.clear()
+        savedStateHandle.set(SET_OF_CHEAT_QUESTIONS, setIndexCheatQuestion)
         countDoneAnswers = 0
         countRightAnswers = 0
     }
