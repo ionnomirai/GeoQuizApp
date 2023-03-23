@@ -12,6 +12,7 @@ const val COUNT_DONE_ANSWERS = "COUNT_DONE_ANSWERS"
 const val COUNT_RIGHT_ANSWERS = "COUNT_RIGHT_ANSWERS"
 const val IS_CHEATER_KEY = "IS_CHEATER_KEY"
 const val SET_OF_CHEAT_QUESTIONS = "SET_OF_CHEAT_QUESTIONS"
+const val COUNT_OF_CHEATS = "COUNT_OF_CHEAT"
 
 class QuizViewModel(private val savedStateHandle: SavedStateHandle) : ViewModel() {
     //List of question for quiz (A better way is database)
@@ -61,6 +62,8 @@ class QuizViewModel(private val savedStateHandle: SavedStateHandle) : ViewModel(
     var isCheater: Boolean
         get() = savedStateHandle.get(IS_CHEATER_KEY) ?: false
         set(value) = savedStateHandle.set(IS_CHEATER_KEY, value)
+
+    private var countOfCheat: Int = savedStateHandle.get(COUNT_OF_CHEATS) ?: 0
 
     init {
         //we will see this message, when object will be created
@@ -137,10 +140,22 @@ class QuizViewModel(private val savedStateHandle: SavedStateHandle) : ViewModel(
         savedStateHandle.set(SET_OF_CHEAT_QUESTIONS, setIndexCheatQuestion)
         countDoneAnswers = 0
         countRightAnswers = 0
+
+        countOfCheat = 0
+        savedStateHandle.set(COUNT_OF_CHEATS, countOfCheat)
     }
 
     fun getCountWrongAns(): Int {
         return sizeOfQuestionList - countRightAnswers
+    }
+
+    /*user can cheat 3 times. If he can use cheat, that it return true. Otherwise false*/
+    fun checkAvailableCheatAttempt() : Boolean{
+        return countOfCheat >= 0 && countOfCheat < 3
+    }
+
+    fun usedCheatIncrementator(){
+        savedStateHandle.set(COUNT_OF_CHEATS, countOfCheat++)
     }
 
     /* This method will be called when this ViewModel is no longer

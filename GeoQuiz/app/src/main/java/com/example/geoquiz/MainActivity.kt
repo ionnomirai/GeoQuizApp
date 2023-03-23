@@ -35,7 +35,10 @@ class MainActivity : AppCompatActivity() {
         if (result.resultCode == Activity.RESULT_OK) {
             quizViewModel.isCheater =
                 result.data?.getBooleanExtra(EXTRA_ANSWER_SHOWN, false) ?: false
+            //add cheat question to the set with indexes question with answered with help cheat
             quizViewModel.addCheatQuestion()
+            //increase the number of cheats used by the user
+            quizViewModel.usedCheatIncrementator()
         }
     }
 
@@ -78,9 +81,14 @@ class MainActivity : AppCompatActivity() {
         }
 
         cheatButton.setOnClickListener {
-            val answerIsTrue = quizViewModel.currentQuestionAnswer
-            val intent = CheatActivity.newIntent(this@MainActivity, answerIsTrue)
-            cheatLauncher.launch(intent)
+            if (quizViewModel.checkAvailableCheatAttempt()) {
+                val answerIsTrue = quizViewModel.currentQuestionAnswer
+                val intent = CheatActivity.newIntent(this@MainActivity, answerIsTrue)
+                cheatLauncher.launch(intent)
+            } else {
+                Toast.makeText(this, R.string.number_of_cheats_exceeded_toast, Toast.LENGTH_SHORT)
+                    .show()
+            }
         }
 
         //fill textView area with information (question) when application start
@@ -124,13 +132,13 @@ class MainActivity : AppCompatActivity() {
         /*Save variable with string resource
         if user is cheater than toast will be judgmental, it the other case it will be right or
         wrong answer toast*/
-        val messageResId = when{
+        val messageResId = when {
             quizViewModel.checkCurrentQuestionCheat() -> R.string.judgment_toast
             userAnswer == quizViewModel.currentQuestionAnswer -> R.string.correct_toast
             else -> R.string.incorrect_toast
         }
 
-        if(userAnswer == quizViewModel.currentQuestionAnswer){
+        if (userAnswer == quizViewModel.currentQuestionAnswer) {
             quizViewModel.countRightAnswers++
         }
 
