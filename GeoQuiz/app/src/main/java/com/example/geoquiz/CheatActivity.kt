@@ -19,7 +19,7 @@ class CheatActivity : AppCompatActivity() {
     private lateinit var showAnswerButton: Button
     private lateinit var apiTextView: TextView
     private var answerIsTrue = false
-    private var apiData = "API level: ${Build.VERSION.SDK_INT.toString()}"
+    private var apiData = "API level: ${Build.VERSION.SDK_INT}"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

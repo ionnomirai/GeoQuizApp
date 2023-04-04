@@ -74,6 +74,7 @@ class MainActivity : AppCompatActivity() {
 
         questionTextView.setOnClickListener {
             updateAndMoveToNextQuestion()
+            checkDoneAnswer()
         }
 
         restartButton.setOnClickListener {

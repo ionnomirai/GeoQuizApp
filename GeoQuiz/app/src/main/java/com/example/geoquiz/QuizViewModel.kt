@@ -106,7 +106,7 @@ class QuizViewModel(private val savedStateHandle: SavedStateHandle) : ViewModel(
         /*if currentIndex equals 0 then make currentIndex = 5
         * In other cases we will go through the list in backward direction*/
         currentIndex = if (currentIndex == 0) {
-            5
+            sizeOfQuestionList - 1
         } else {
             (currentIndex - 1) % questionBank.size
         }
